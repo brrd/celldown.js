@@ -1,0 +1,8 @@
+{
+    "undef": true,
+    "globals": {
+        "define": false
+    },
+    "browser": true,
+    "node": true
+}
