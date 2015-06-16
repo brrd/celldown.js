@@ -136,7 +136,8 @@ celldown = do () ->
         removeRows: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
             size = @getSize()
-            if index <= 1 or index > size.rows-1 then return this # FIXME: ne prend pas en compte number
+            if index <= 1 or index > size.rows-1 then return this
+            if number > size.rows - index then number = size.rows - index
             @arr.splice index, number
             @cursor?.moveRow index -number
             return this
@@ -145,7 +146,8 @@ celldown = do () ->
         removeCols: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
             size = @getSize()
-            if index < 0 or index > size.cols - 1 then return this # FIXME: ne prend pas en compte number
+            if index < 0 or index > size.cols - 1 then return this
+            if number > size.cols - index then number = size.cols - index
             row.splice index, number for row in @arr
             @cursor?.moveCol index -number
             return this
@@ -233,16 +235,24 @@ celldown = do () ->
             if typeof coord.line? then coord = translateCoord coord, tableText
             {@row, @col, @ch} = coord
 
-        # TODO: mieux checker la validité du mouvement
         moveCol: (index, move) ->
             move ?= 1
-            if index <= this.col then @col += move
+            if index <= @col
+                lastColIndex = @table.arr[@col].length - 1
+                @col = switch
+                    when index + move > lastColIndex then lastColIndex
+                    when index + move < 0 then 0
+                    else @col + move
             return this
 
-        # TODO: mieux checker la validité du mouvement
         moveRow: (index, move) ->
             move ?= 1
-            if index <= this.row then @row += move
+            if index <= @row
+                lastRowIndex = @table.arr.length - 1
+                @row = switch
+                    when index + move > lastRowIndex then lastRowIndex
+                    when index + move < 0 then 0
+                    else @row + move
             return this
 
         get: (extraPipes, extraSpaces) ->

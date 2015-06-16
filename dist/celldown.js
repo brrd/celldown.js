@@ -264,6 +264,9 @@
         if (index <= 1 || index > size.rows - 1) {
           return this;
         }
+        if (number > size.rows - index) {
+          number = size.rows - index;
+        }
         this.arr.splice(index, number);
         if ((ref = this.cursor) != null) {
           ref.moveRow(index(-number));
@@ -281,6 +284,9 @@
         size = this.getSize();
         if (index < 0 || index > size.cols - 1) {
           return this;
+        }
+        if (number > size.cols - index) {
+          number = size.cols - index;
         }
         ref = this.arr;
         for (j = 0, len = ref.length; j < len; j++) {
@@ -424,21 +430,43 @@
       }
 
       Cursor.prototype.moveCol = function(index, move) {
+        var lastColIndex;
         if (move == null) {
           move = 1;
         }
         if (index <= this.col) {
-          this.col += move;
+          lastColIndex = this.table.arr[this.col].length - 1;
+          this.col = (function() {
+            switch (false) {
+              case !(index + move > lastColIndex):
+                return lastColIndex;
+              case !(index + move < 0):
+                return 0;
+              default:
+                return this.col + move;
+            }
+          }).call(this);
         }
         return this;
       };
 
       Cursor.prototype.moveRow = function(index, move) {
+        var lastRowIndex;
         if (move == null) {
           move = 1;
         }
         if (index <= this.row) {
-          this.row += move;
+          lastRowIndex = this.table.arr.length - 1;
+          this.row = (function() {
+            switch (false) {
+              case !(index + move > lastRowIndex):
+                return lastRowIndex;
+              case !(index + move < 0):
+                return 0;
+              default:
+                return this.row + move;
+            }
+          }).call(this);
         }
         return this;
       };
