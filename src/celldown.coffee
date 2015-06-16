@@ -18,6 +18,7 @@ celldown = do () ->
 
     ### Check if a string is recognized as a valid table ###
     ### To know if text is a markdown table we count the "|" character: it is supposed to be the same for each line. We also check for a line header. ###
+    # TODO: prepend header when table is ok but has no header
     isValidTable = (text) ->
         lines = text.split("\n")
         hasHeader = /^[\s-:|]+$/.test lines[1]
@@ -164,33 +165,40 @@ celldown = do () ->
             @arr[1][colIndex] = content
             return this
 
-        ###
-        FIXME: si on a une header line super trop longue alors elle est conservée. Il faut la recalculer à chaque fois
-        ###
         beautify: () ->
 
             getColMaxSize = () =>
                 colMaxSize = []
+                minSize = 3
                 @eachCell (arr, cell, rowIndex, colIndex) ->
+                    if rowIndex is 1 then return # dont check hyphens row
                     cellLength = cell.trim().length
-                    if !colMaxSize[colIndex] || colMaxSize[colIndex] < cellLength
+                    if !colMaxSize[colIndex] or colMaxSize[colIndex] < cellLength
                         colMaxSize[colIndex] = cellLength
+                colMaxSize[i] = minSize for size, i in colMaxSize when size < minSize
                 return colMaxSize
 
             resizeCells = (colMaxSize) =>
                 @eachCell (arr, cell, rowIndex, colIndex) =>
-                    cell = cell.trim() # TODO: cursor
-                    missingChars = colMaxSize[colIndex] - cell.length
-                    isHyphens = /^:?-+:?$/.test cell
-                    lastChar = cell.substr -1, cell.length-1
-                    fillingChar = if isHyphens then "-" else " "
-                    if isHyphens then cell.replace /\s/g, "-"
-                    while missingChars > 0
-                        if isHyphens and lastChar is ":" and colMaxSize[colIndex] > 1
-                            cell = cell.substr(0, cell.length-1) + fillingChar + lastChar
-                        else
-                            cell += fillingChar
-                        missingChars--
+                    # Watch cursor first (before trim)
+                    # TODO: create a cursor.moveCh method from this code
+                    if @cursor? and @cursor.row is rowIndex and @cursor.col is colIndex
+                        beforeCursor = if @cursor.ch? then cell.substr 0, @cursor.ch else cell
+                        match = beforeCursor.match /^\s?/
+                        if match?
+                            moveLeft = match[0].length
+                            @cursor.ch = if moveLeft > @cursor.ch then 0 else @cursor.ch - moveLeft
+                    # Then modify cell
+                    cell = cell.trim()
+                    size = colMaxSize[colIndex]
+                    isHyphens = rowIndex is 1
+                    if isHyphens
+                        firstChar = cell.substr 0, 1 ? "-"
+                        lastChar = cell.substr -1, 1 ? "-"
+                        cell = firstChar + ("-" for [1..size-2]).join("") + lastChar
+                    else
+                        missingChars = size - cell.length
+                        if missingChars > 0 then cell += (" " for [1..missingChars]).join("")
                     @arr[rowIndex][colIndex] = cell
 
             resizeCells getColMaxSize()
@@ -240,7 +248,7 @@ celldown = do () ->
             if index <= @col
                 lastColIndex = @table.arr[@col].length - 1
                 @col = switch
-                    when index + move > lastColIndex then lastColIndex
+                    when index + move > lastColIndex then lastColIndex # TODO: use null
                     when index + move < 0 then 0
                     else @col + move
             return this
@@ -250,7 +258,7 @@ celldown = do () ->
             if index <= @row
                 lastRowIndex = @table.arr.length - 1
                 @row = switch
-                    when index + move > lastRowIndex then lastRowIndex
+                    when index + move > lastRowIndex then lastRowIndex # TODO: use null
                     when index + move < 0 then 0
                     else @row + move
             return this

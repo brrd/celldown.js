@@ -12,8 +12,8 @@ function show (table, msg) {
 
 var celldown = require("../dist/celldown.js"),
     str = "|I'm a table   |generated   |with celldown.js|\n" +
-    "|--|--|-- |\n" +
-    "|Hello World|Foo        | Bar |\n" +
+    "|--|--|------------------------------------------------------------ |\n" +
+    "|Hello World|  Foo      | Bar |\n" +
     "|Foo|Bar|This is the longest cell!|";
 
 // 1. Create a new empty table
@@ -34,7 +34,7 @@ show(table2, "4. Adding a row and a col");
 
 // 5. Cursor tracking
 // Cursor is placed here :
-// "|Hello World|Foo        | Bar |\n"
+// "|Hello World|  Foo8901      | Bar |\n"
 //                  -----L-- -   -
 //  0123456789012345678901234567890"
 

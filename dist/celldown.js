@@ -323,46 +323,70 @@
         return this;
       };
 
-
-      /*
-      FIXME: si on a une header line super trop longue alors elle est conservée. Il faut la recalculer à chaque fois
-       */
-
       Table.prototype.beautify = function() {
         var getColMaxSize, resizeCells;
         getColMaxSize = (function(_this) {
           return function() {
-            var colMaxSize;
+            var colMaxSize, i, j, len, minSize, size;
             colMaxSize = [];
+            minSize = 3;
             _this.eachCell(function(arr, cell, rowIndex, colIndex) {
               var cellLength;
+              if (rowIndex === 1) {
+                return;
+              }
               cellLength = cell.trim().length;
               if (!colMaxSize[colIndex] || colMaxSize[colIndex] < cellLength) {
                 return colMaxSize[colIndex] = cellLength;
               }
             });
+            for (i = j = 0, len = colMaxSize.length; j < len; i = ++j) {
+              size = colMaxSize[i];
+              if (size < minSize) {
+                colMaxSize[i] = minSize;
+              }
+            }
             return colMaxSize;
           };
         })(this);
         resizeCells = (function(_this) {
           return function(colMaxSize) {
             return _this.eachCell(function(arr, cell, rowIndex, colIndex) {
-              var fillingChar, isHyphens, lastChar, missingChars;
-              cell = cell.trim();
-              missingChars = colMaxSize[colIndex] - cell.length;
-              isHyphens = /^:?-+:?$/.test(cell);
-              lastChar = cell.substr(-1, cell.length - 1);
-              fillingChar = isHyphens ? "-" : " ";
-              if (isHyphens) {
-                cell.replace(/\s/g, "-");
-              }
-              while (missingChars > 0) {
-                if (isHyphens && lastChar === ":" && colMaxSize[colIndex] > 1) {
-                  cell = cell.substr(0, cell.length - 1) + fillingChar + lastChar;
-                } else {
-                  cell += fillingChar;
+              var beforeCursor, firstChar, isHyphens, lastChar, match, missingChars, moveLeft, size;
+              if ((_this.cursor != null) && _this.cursor.row === rowIndex && _this.cursor.col === colIndex) {
+                beforeCursor = _this.cursor.ch != null ? cell.substr(0, _this.cursor.ch) : cell;
+                match = beforeCursor.match(/^\s?/);
+                if (match != null) {
+                  moveLeft = match[0].length;
+                  _this.cursor.ch = moveLeft > _this.cursor.ch ? 0 : _this.cursor.ch - moveLeft;
                 }
-                missingChars--;
+              }
+              cell = cell.trim();
+              size = colMaxSize[colIndex];
+              isHyphens = rowIndex === 1;
+              if (isHyphens) {
+                firstChar = cell.substr(0, 1 != null ? 1 : "-");
+                lastChar = cell.substr(-1, 1 != null ? 1 : "-");
+                cell = firstChar + ((function() {
+                  var j, ref, results;
+                  results = [];
+                  for (j = 1, ref = size - 2; 1 <= ref ? j <= ref : j >= ref; 1 <= ref ? j++ : j--) {
+                    results.push("-");
+                  }
+                  return results;
+                })()).join("") + lastChar;
+              } else {
+                missingChars = size - cell.length;
+                if (missingChars > 0) {
+                  cell += ((function() {
+                    var j, ref, results;
+                    results = [];
+                    for (j = 1, ref = missingChars; 1 <= ref ? j <= ref : j >= ref; 1 <= ref ? j++ : j--) {
+                      results.push(" ");
+                    }
+                    return results;
+                  })()).join("");
+                }
               }
               return _this.arr[rowIndex][colIndex] = cell;
             });
