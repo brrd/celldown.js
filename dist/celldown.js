@@ -41,45 +41,44 @@
       return true;
     };
     text2arr = function(text, cursor) {
-
-      /* Attention : fonction à n'utiliser que sur la ligne qui contient le curseur */
-      var arr, hyphensIndex, i, j, lineContent, lines, ref, removeExtraPipes, row, tableHasExtraPipes, trackCursorWhenReplace, trimCells;
-      trackCursorWhenReplace = function(lineContent, start, length, replacement, cursor) {
+      var arr, getCursorMove, hyphensIndex, i, j, lineContent, lines, ref, removeExtraPipes, row, tableHasExtraPipes, trimCells;
+      getCursorMove = function(lineContent, start, length, cursor) {
         var end;
         if (length === 0) {
-          return;
+          return 0;
         }
         end = start + length;
         if (end <= cursor.ch) {
-          return cursor.ch -= length - replacement.length;
+          return -length;
         } else if (start < cursor.ch && end > cursor.ch) {
-          return cursor.ch -= cursor.ch - start - replacement.length;
+          return -(cursor.ch - start);
         }
+        return 0;
       };
       removeExtraPipes = function(lineContent, lineIndex, cursor) {
-        var regex, result;
+        var cursorMove, regex, result;
         regex = /^\s*\||\|\s*$/g;
-
-        /* Track cursor if needed */
         if ((cursor != null ? cursor.line : void 0) === lineIndex) {
+          cursorMove = 0;
           while ((result = regex.exec(lineContent)) != null) {
-            trackCursorWhenReplace(lineContent, result.index, result[0].length, "", cursor);
+            cursorMove += getCursorMove(lineContent, result.index, result[0].length, cursor);
           }
+          cursor.ch += cursorMove;
         }
         return lineContent.replace(regex, "");
       };
       trimCells = function(lineContent, lineIndex, cursor) {
-        var regex, result, spacesAfter, spacesBefore;
+        var cursorMove, regex, result, spacesAfter, spacesBefore;
         regex = /(\s*)\|(\s*)/g;
-
-        /* Track cursor if needed */
         if ((cursor != null ? cursor.line : void 0) === lineIndex) {
+          cursorMove = 0;
           while ((result = regex.exec(lineContent)) != null) {
             spacesBefore = result[1];
+            cursorMove += getCursorMove(lineContent, result.index, spacesBefore.length, cursor);
             spacesAfter = result[2];
-            trackCursorWhenReplace(lineContent, result.index, spacesBefore.length, "", cursor);
-            trackCursorWhenReplace(lineContent, result.index + spacesBefore.length + 1, spacesAfter.length, "", cursor);
+            cursorMove += getCursorMove(lineContent, result.index + spacesBefore.length + 1, spacesAfter.length, cursor);
           }
+          cursor.ch += cursorMove;
         }
         return lineContent.replace(regex, "|");
       };

@@ -32,32 +32,37 @@ celldown = do () ->
     # Les deux func arr2text et text2arr gèrent l'entrée et la sortie : il entrent et sortent text, cursor à chaque fois. Ça permet la conversion data --(text2arr)--> celldown --(arr2text)--> data. Toutes les fioritures sont gérées ici.
 
     text2arr = (text, cursor) ->
-        ### Attention : fonction à n'utiliser que sur la ligne qui contient le curseur ###
-        trackCursorWhenReplace = (lineContent, start, length, replacement, cursor) ->
-            if length is 0 then return
+        # Compute if deleting a fragment of lineContent from position start to position start + length should cause the cursor to move. Return the corresponding move.
+        getCursorMove = (lineContent, start, length, cursor) ->
+            if length is 0 then return 0
             end = start + length
             if end <= cursor.ch
-                cursor.ch -= length - replacement.length
+                return -length
             else if start < cursor.ch && end > cursor.ch
-                cursor.ch -= cursor.ch - start - replacement.length
+                return -(cursor.ch - start)
+            return 0
 
         removeExtraPipes = (lineContent, lineIndex, cursor) ->
             regex = /^\s*\||\|\s*$/g
-            ### Track cursor if needed ###
+            # Track cursor if needed
             if cursor?.line is lineIndex
+                cursorMove = 0
                 while (result = regex.exec lineContent)?
-                    trackCursorWhenReplace lineContent, result.index, result[0].length, "", cursor
+                    cursorMove += getCursorMove lineContent, result.index, result[0].length, cursor
+                cursor.ch += cursorMove
             return lineContent.replace regex, ""
 
         trimCells = (lineContent, lineIndex, cursor) ->
             regex = /(\s*)\|(\s*)/g
-            ### Track cursor if needed ###
+            # Track cursor if needed
             if cursor?.line is lineIndex
+                cursorMove = 0
                 while (result = regex.exec lineContent)?
                     spacesBefore = result[1]
+                    cursorMove += getCursorMove lineContent, result.index, spacesBefore.length, cursor
                     spacesAfter = result[2]
-                    trackCursorWhenReplace lineContent, result.index, spacesBefore.length, "", cursor
-                    trackCursorWhenReplace lineContent, result.index + spacesBefore.length + 1, spacesAfter.length, "", cursor
+                    cursorMove += getCursorMove lineContent, result.index + spacesBefore.length + 1, spacesAfter.length, cursor
+                cursor.ch += cursorMove
             return lineContent.replace regex, "|"
 
         lines = text.split("\n")
