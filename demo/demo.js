@@ -45,3 +45,6 @@ var cursor = {
 var table3 = celldown.fromText(str, cursor).addRows(2, 3).addCols(0, 1).beautify();
 
 show(table3, "5. Cursor tracking. We start a new table with cursor = {line: 2, ch: 21} and we play with rows and columns.");
+
+table3.removeRows(2,3).removeCols(1,2);
+show(table3, "6. Removing cols and rows");

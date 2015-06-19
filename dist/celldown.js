@@ -41,7 +41,7 @@
       return true;
     };
     text2arr = function(text, cursor) {
-      var arr, getCursorMove, hyphensIndex, i, j, lineContent, lines, ref, removeExtraPipes, row, tableHasExtraPipes, trimCells;
+      var arr, getCursorMove, hyphensIndex, i, j, len, line, lineContent, lines, removeExtraPipes, row, tableHasExtraPipes, trimCells;
       getCursorMove = function(lineContent, start, length, cursor) {
         var end;
         if (length === 0) {
@@ -86,9 +86,10 @@
       hyphensIndex = 1;
       tableHasExtraPipes = /^\s?\|.*\|\s?$/.test(lines[hyphensIndex]);
       arr = [];
-      for (i = j = 0, ref = lines.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+      for (i = j = 0, len = lines.length; j < len; i = ++j) {
+        line = lines[i];
         if (tableHasExtraPipes) {
-          lineContent = removeExtraPipes(lines[i], i, cursor);
+          lineContent = removeExtraPipes(line, i, cursor);
         }
         lineContent = trimCells(lineContent, i, cursor);
         row = lineContent.split("|");
@@ -179,19 +180,22 @@
       }
 
       Table.prototype.eachRow = function(callback) {
-        var j, ref, rowIndex;
-        for (rowIndex = j = 0, ref = this.arr.length - 1; 0 <= ref ? j <= ref : j >= ref; rowIndex = 0 <= ref ? ++j : --j) {
-          callback(this.arr, this.arr[rowIndex], rowIndex);
+        var i, j, len, ref, row;
+        ref = this.arr;
+        for (i = j = 0, len = ref.length; j < len; i = ++j) {
+          row = ref[i];
+          callback(this.arr, row, i);
         }
         return this;
       };
 
       Table.prototype.eachCell = function(callback) {
         this.eachRow(function(arr, row, rowIndex) {
-          var colIndex, j, ref, results;
+          var cell, i, j, len, results;
           results = [];
-          for (colIndex = j = 0, ref = row.length - 1; 0 <= ref ? j <= ref : j >= ref; colIndex = 0 <= ref ? ++j : --j) {
-            results.push(callback(this.arr, row[colIndex], rowIndex, colIndex));
+          for (i = j = 0, len = row.length; j < len; i = ++j) {
+            cell = row[i];
+            results.push(callback(this.arr, cell, rowIndex, i));
           }
           return results;
         });
@@ -267,8 +271,11 @@
           number = size.rows - index;
         }
         this.arr.splice(index, number);
-        if ((ref = this.cursor) != null) {
-          ref.moveRow(index(-number));
+        if (this.cursor != null) {
+          if ((index <= (ref = this.cursor.row) && ref <= index + number)) {
+            this.cursor.ch = 0;
+          }
+          this.cursor.moveRow(index, -number);
         }
         return this;
       };
@@ -292,8 +299,11 @@
           row = ref[j];
           row.splice(index, number);
         }
-        if ((ref1 = this.cursor) != null) {
-          ref1.moveCol(index(-number));
+        if (this.cursor != null) {
+          if ((index <= (ref1 = this.cursor.col) && ref1 <= index + number)) {
+            this.cursor.ch = 0;
+          }
+          this.cursor.moveCol(index, -number);
         }
         return this;
       };
@@ -424,14 +434,6 @@
         ch: chIndex
       };
     };
-
-    /*
-    coord can be either :
-    * a {line, ch} object (position in text) or
-    * a {row, col, ch} object (position in table)
-    Only the position is used to keep track of the cursor.
-    NOTE: null means last element. TODO: do tests
-     */
     Cursor = (function() {
       function Cursor(table, coord) {
         var row, tableText;
@@ -458,7 +460,7 @@
           move = 1;
         }
         if (index <= this.col) {
-          lastColIndex = this.table.arr[this.col].length - 1;
+          lastColIndex = this.table.arr[this.row].length - 1;
           this.col = (function() {
             switch (false) {
               case !(index + move > lastColIndex):
@@ -499,8 +501,10 @@
         arr = this.table.arr;
         row = (ref = arr[this.row]) != null ? ref : arr[arr.length - 1];
         chTxt = this.ch;
-        for (cellIndex = j = 0, ref1 = this.col - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; cellIndex = 0 <= ref1 ? ++j : --j) {
-          chTxt += row[cellIndex].length;
+        if (this.col > 0) {
+          for (cellIndex = j = 0, ref1 = this.col - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; cellIndex = 0 <= ref1 ? ++j : --j) {
+            chTxt += row[cellIndex].length;
+          }
         }
         if (extraPipes) {
           chTxt += 1;

@@ -69,8 +69,8 @@ celldown = do () ->
         hyphensIndex = 1
         tableHasExtraPipes = /^\s?\|.*\|\s?$/.test lines[hyphensIndex]
         arr = []
-        for i in [0..lines.length-1]
-            lineContent = removeExtraPipes lines[i], i, cursor if tableHasExtraPipes
+        for line, i in lines
+            lineContent = removeExtraPipes line, i, cursor if tableHasExtraPipes
             lineContent = trimCells lineContent, i, cursor
             row = lineContent.split("|")
             arr.push row
@@ -109,12 +109,12 @@ celldown = do () ->
             @cursor = if cursor? then new Cursor this, cursor else null
 
         eachRow: (callback) ->
-            callback @arr, @arr[rowIndex], rowIndex for rowIndex in [0..@arr.length-1] # FIXME: voir menu i + 1, dish for dish, i in courses (ici et partout ailleurs)
+            callback @arr, row, i for row, i in @arr
             return this
 
         eachCell: (callback) ->
             @eachRow (arr, row, rowIndex) ->
-                callback @arr, row[colIndex], rowIndex, colIndex for colIndex in [0..row.length-1]
+                callback @arr, cell, rowIndex, i for cell, i in row
             return this
 
         addRows: (index, number) ->
@@ -138,24 +138,26 @@ celldown = do () ->
             if number > 1 then @addCols index, number-1
             return this
 
-        # TODO: do tests
         removeRows: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
             size = @getSize()
             if index <= 1 or index > size.rows-1 then return this
             if number > size.rows - index then number = size.rows - index
             @arr.splice index, number
-            @cursor?.moveRow index -number
+            if @cursor?
+                if index <= @cursor.row <= index + number then @cursor.ch = 0
+                @cursor.moveRow index, -number
             return this
 
-        # TODO: do tests
         removeCols: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
             size = @getSize()
             if index < 0 or index > size.cols - 1 then return this
             if number > size.cols - index then number = size.cols - index
             row.splice index, number for row in @arr
-            @cursor?.moveCol index -number
+            if @cursor?
+                if index <= @cursor.col <= index + number then @cursor.ch = 0
+                @cursor.moveCol index, -number
             return this
 
         align: (colIndex, side) ->
@@ -213,9 +215,6 @@ celldown = do () ->
 
         getSize: () -> { cols: @arr[0].length, rows: @arr.length }
 
-        # TODO: @getCoord
-        # TODO: setCol, setCell & setRow for adding content in table
-
     # Cursor
     # ======
 
@@ -233,14 +232,6 @@ celldown = do () ->
             ch: chIndex
         }
 
-    ###
-    coord can be either :
-    * a {line, ch} object (position in text) or
-    * a {row, col, ch} object (position in table)
-    Only the position is used to keep track of the cursor.
-    NOTE: null means last element. TODO: do tests
-    ###
-
     class Cursor
         constructor: (table, coord) ->
             @table = table
@@ -251,9 +242,9 @@ celldown = do () ->
         moveCol: (index, move) ->
             move ?= 1
             if index <= @col
-                lastColIndex = @table.arr[@col].length - 1
+                lastColIndex = @table.arr[@row].length - 1
                 @col = switch
-                    when index + move > lastColIndex then lastColIndex # TODO: use null
+                    when index + move > lastColIndex then lastColIndex
                     when index + move < 0 then 0
                     else @col + move
             return this
@@ -263,16 +254,16 @@ celldown = do () ->
             if index <= @row
                 lastRowIndex = @table.arr.length - 1
                 @row = switch
-                    when index + move > lastRowIndex then lastRowIndex # TODO: use null
+                    when index + move > lastRowIndex then lastRowIndex
                     when index + move < 0 then 0
                     else @row + move
             return this
 
         get: (extraPipes, extraSpaces) ->
             arr = @table.arr
-            row = arr[@row] ? arr[arr.length-1] # FIXME: issue here ?
+            row = arr[@row] ? arr[arr.length-1]
             chTxt = @ch
-            chTxt += row[cellIndex].length for cellIndex in [0..@col-1]
+            if @col > 0 then chTxt += row[cellIndex].length for cellIndex in [0..@col-1]
             # extraPipes
             if extraPipes then chTxt += 1
             # extraSpaces
