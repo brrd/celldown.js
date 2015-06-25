@@ -3,6 +3,9 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         coffee: {
             build: {
+                options: {
+                    banner: '/*\n\t<%= pkg.name %> - version <%= pkg.version %>\n*/\n'
+                },
                 files: {
                     'dist/celldown.js': 'src/celldown.coffee'
                 }

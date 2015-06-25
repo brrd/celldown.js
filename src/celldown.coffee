@@ -1,3 +1,8 @@
+###
+    celldown.js - A small javascript library for manipulating markdown tables
+    https://github.com/brrd/celldown
+    MIT License - 2015 Thomas Brouard
+###
 celldown = do () ->
 
     # Celldown default configuration
@@ -16,8 +21,8 @@ celldown = do () ->
         match = str.match /\|/g
         if not match? then 0 else match.length
 
-    ### Check if a string is recognized as a valid table ###
-    ### To know if text is a markdown table we count the "|" character: it is supposed to be the same for each line. We also check for a line header. ###
+    # Check if a string is recognized as a valid table
+    # To know if text is a markdown table we count "|" characters: it is supposed to be the same for each line. We also check for a hyphens row.
     # TODO: prepend header when table is ok but has no header
     isValidTable = (text) ->
         lines = text.split("\n")
@@ -29,8 +34,7 @@ celldown = do () ->
             prevNumberOfPipes = numberOfPipes
         return true
 
-    # Les deux func arr2text et text2arr gèrent l'entrée et la sortie : il entrent et sortent text, cursor à chaque fois. Ça permet la conversion data --(text2arr)--> celldown --(arr2text)--> data. Toutes les fioritures sont gérées ici.
-
+    # Get an normalized array and an updated {line, ch} cursor from a text and a {line, ch}
     text2arr = (text, cursor) ->
         # Compute if deleting a fragment of lineContent from position start to position start + length should cause the cursor to move. Return the corresponding move.
         getCursorMove = (lineContent, start, length, cursor) ->
@@ -42,6 +46,7 @@ celldown = do () ->
                 return -(cursor.ch - start)
             return 0
 
+        # Remove opional pipes that surround rows
         removeExtraPipes = (lineContent, lineIndex, cursor) ->
             regex = /^\s*\||\|\s*$/g
             # Track cursor if needed
@@ -52,6 +57,7 @@ celldown = do () ->
                 cursor.ch += cursorMove
             return lineContent.replace regex, ""
 
+        # Trim cells
         trimCells = (lineContent, lineIndex, cursor) ->
             regex = /(\s*)\|(\s*)/g
             # Track cursor if needed
@@ -76,10 +82,13 @@ celldown = do () ->
             arr.push row
         return {arr, cursor}
 
+    # Get a markdown table and a {line, ch} cursor
+    # extraPipes : add optional pipes before and after row
+    # extraSpaces : add extra spaces into cells
     arr2text = (arr, cursor, extraPipes, extraSpaces) ->
         extraPipes ?= config.extraPipes
         extraSpaces ?= config.extraSpaces
-        cursorText = cursor?.get extraPipes, extraSpaces # TODO: il faudrait qu'a l'entree aussi ce soit nommé cursorText
+        cursorText = cursor?.get extraPipes, extraSpaces
         cursorText ?= null
         cellSeparator = if extraSpaces then " | " else "|"
         if extraPipes and extraSpaces
@@ -92,11 +101,13 @@ celldown = do () ->
         text = (lineStart + row.join(cellSeparator) + lineStop for row in arr).join "\n"
         return { table: text, cursor: cursorText }
 
+    # Get an empty array
     getEmptyArr = (colsNumber, rowsNumber) ->
         emptyRow = ("   " for [1..colsNumber])
         hyphensRow = ("---" for [1..colsNumber])
         return [emptyRow, hyphensRow].concat (emptyRow for [1..rowsNumber])
 
+    # Table in created and returned by celldown
     class Table
         constructor: (options) ->
             cursor = options.cursor ? null
@@ -108,15 +119,18 @@ celldown = do () ->
                 @arr = getEmptyArr options.cols, options.rows
             @cursor = if cursor? then new Cursor this, cursor else null
 
+        # Run callback(@arr, row, rowIndex) for each row of the table
         eachRow: (callback) ->
             callback @arr, row, i for row, i in @arr
             return this
 
+        # Run callback(@arr, cell, rowIndex, colIndex) for each cell of the table
         eachCell: (callback) ->
             @eachRow (arr, row, rowIndex) ->
                 callback @arr, cell, rowIndex, i for cell, i in row
             return this
 
+        # Add 'number' rows at 'index' position
         addRows: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
             size = @getSize()
@@ -128,6 +142,7 @@ celldown = do () ->
             if number > 1 then @addRows index, number-1
             return this
 
+        # Add 'number' cols at 'index' position
         addCols: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
             @eachRow (arr, row, rowIndex) ->
@@ -138,6 +153,7 @@ celldown = do () ->
             if number > 1 then @addCols index, number-1
             return this
 
+        # Remove 'number' rows at 'index' position
         removeRows: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
             size = @getSize()
@@ -149,6 +165,7 @@ celldown = do () ->
                 @cursor.moveRow index, -number
             return this
 
+        # Remove 'number' cols at 'index' position
         removeCols: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
             size = @getSize()
@@ -160,6 +177,7 @@ celldown = do () ->
                 @cursor.moveCol index, -number
             return this
 
+        # Set 'colIndex'th column align according to 'side' parameter
         align: (colIndex, side) ->
             if colIndex < 0 or colIndex > @arr.length-1 then return this
             cell = @arr[1][colIndex]
@@ -169,11 +187,13 @@ celldown = do () ->
                 when "left" then content = ":" + content + "-"
                 when "right" then content = "-" + content + ":"
                 when "center" then content = ":" + content + ":"
+                else content = "-" + content + "-"
             @arr[1][colIndex] = content
             return this
 
+        # Beautify table. It remains normalized (ie no extra pipes, no extra spaces in cells)
         beautify: () ->
-
+            # For each col, store the highest text length
             getColMaxSize = () =>
                 colMaxSize = []
                 minSize = 3
@@ -184,7 +204,7 @@ celldown = do () ->
                         colMaxSize[colIndex] = cellLength
                 colMaxSize[i] = minSize for size, i in colMaxSize when size < minSize
                 return colMaxSize
-
+            # Resize (= fill) all cells according to the given max size for each col
             resizeCells = (colMaxSize) =>
                 @eachCell (arr, cell, rowIndex, colIndex) =>
                     # Watch cursor first (before trim)
@@ -211,13 +231,16 @@ celldown = do () ->
             resizeCells getColMaxSize()
             return this
 
+        # Get the markdown table as text and the updated cursor
         get: (extraPipes, extraSpaces) -> arr2text @arr, @cursor
 
+        # Get the size of the table {cols, rows}
         getSize: () -> { cols: @arr[0].length, rows: @arr.length }
 
     # Cursor
     # ======
 
+    # Given a {line, ch} coord and a markdown table, return a {row, col, ch} coord object
     translateCoord = (coord, text) ->
         rows = text.split "\n"
         rowIndex = if coord.line? and coord.line < rows.length then coord.line else null
@@ -232,6 +255,7 @@ celldown = do () ->
             ch: chIndex
         }
 
+    # Represent the tracked cursor
     class Cursor
         constructor: (table, coord) ->
             @table = table
@@ -239,6 +263,8 @@ celldown = do () ->
             if typeof coord.line? then coord = translateCoord coord, tableText
             {@row, @col, @ch} = coord
 
+        # Move cursor in the 'move' direction in col when table is modified
+        # 'index' is the modified position, so the cursor is moved only if it is located after the modifed col
         moveCol: (index, move) ->
             move ?= 1
             if index <= @col
@@ -249,6 +275,8 @@ celldown = do () ->
                     else @col + move
             return this
 
+        # Move cursor in the 'move' direction in row when table is modified
+        # 'index' is the modified position, so the cursor is moved only if it is located after the modifed row
         moveRow: (index, move) ->
             move ?= 1
             if index <= @row
@@ -259,6 +287,7 @@ celldown = do () ->
                     else @row + move
             return this
 
+        # Get a converted {line, ch} cursor for using with text
         get: (extraPipes, extraSpaces) ->
             arr = @table.arr
             row = arr[@row] ? arr[arr.length-1]
@@ -278,11 +307,12 @@ celldown = do () ->
     # ========
 
     _celldown =
+        # Create a new empty Table
         new: (cols, rows, cursor) ->
             cols ?= config.cols
             rows ?= config.rows
             return new Table {cols, rows, cursor}
-
+        # Create a new Table from text
         fromText: (text, cursor) -> new Table {text, cursor}
 
         isValidTable: (text) -> isValidTable(text)

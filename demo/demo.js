@@ -1,3 +1,9 @@
+/*
+    celldown.js demo 
+    ================
+*/
+
+// Get and show table + cursor (demonstration purpose only)
 function show (table, msg) {
     if (msg) {
         console.log(msg + "\n==============================\n");
@@ -33,18 +39,13 @@ table2.addRows(3).addCols(1).beautify();
 show(table2, "4. Adding a row and a col");
 
 // 5. Cursor tracking
-// Cursor is placed here :
-// "|Hello World|  Foo8901      | Bar |\n"
-//                  -----L-- -   -
-//  0123456789012345678901234567890"
-
 var cursor = {
         line: 2,
         ch: 21
     };
 var table3 = celldown.fromText(str, cursor).addRows(2, 3).addCols(0, 1).beautify();
-
 show(table3, "5. Cursor tracking. We start a new table with cursor = {line: 2, ch: 21} and we play with rows and columns.");
 
+// 6. Cursor tracking while removing cols and rows
 table3.removeRows(2,3).removeCols(1,2);
-show(table3, "6. Removing cols and rows");
+show(table3, "6. Cursor tracking while removing cols and rows");

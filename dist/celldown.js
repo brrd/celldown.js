@@ -1,3 +1,10 @@
+
+/*
+    celldown.js - A small javascript library for manipulating markdown tables
+    https://github.com/brrd/celldown
+    MIT License - 2015 Thomas Brouard
+ */
+
 (function() {
   var celldown;
 
@@ -19,10 +26,6 @@
         return match.length;
       }
     };
-
-    /* Check if a string is recognized as a valid table */
-
-    /* To know if text is a markdown table we count the "|" character: it is supposed to be the same for each line. We also check for a line header. */
     isValidTable = function(text) {
       var hasHeader, j, len, line, lines, numberOfPipes, prevNumberOfPipes;
       lines = text.split("\n");
@@ -327,6 +330,9 @@
             break;
           case "center":
             content = ":" + content + ":";
+            break;
+          default:
+            content = "-" + content + "-";
         }
         this.arr[1][colIndex] = content;
         return this;
