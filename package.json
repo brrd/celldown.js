@@ -1,9 +1,9 @@
 {
   "name": "celldown.js",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A small javascript library for manipulating markdown tables",
   "homepage": "https://github.com/brrd/celldown.js",
-  "main": "celldown.js",
+  "main": "dist/celldown.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
