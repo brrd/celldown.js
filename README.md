@@ -102,32 +102,32 @@ Both defaults are `true`.
 
 #### Add rows and columns
 
-* `.addRow(index)`
-* `.addRow(index, numberOfAdditions)`
-* `.addCol(index)`
-* `.addCol(index, numberOfAdditions)`
+* `.addRows(index)`
+* `.addRows(index, numberOfAdditions)`
+* `.addCols(index)`
+* `.addCols(index, numberOfAdditions)`
 
 ```javascript
 // Adding a row before the 4th row
-table.addRow(3);
+table.addRows(3);
 
 // Adding two cols at the first position
-table.addCol(0, 2);
+table.addCols(0, 2);
 ```
 
 #### Remove rows and columns
 
-* `.removeRow(index)`
-* `.removeRow(index, numberOfDeletions)`
-* `.removeCol(index)`
-* `.removeCol(index, numberOfDeletions)`
+* `.removeRows(index)`
+* `.removeRows(index, numberOfDeletions)`
+* `.removeCols(index)`
+* `.removeCols(index, numberOfDeletions)`
 
 ```javascript
 // Removing the third col
-table.removeCol(2);
+table.removeCols(2);
 
 // Removing 4 rows from the 3th
-table.removeRow(2, 4);
+table.removeRows(2, 4);
 ```
 
 #### Align columns
