@@ -12,6 +12,7 @@ celldown = do () ->
         cols: 2
         extraPipes: true
         extraSpaces: true
+        autoBeautify: true
 
     # Table
     # =====
@@ -249,7 +250,10 @@ celldown = do () ->
             return this
 
         # Get the markdown table as text and the updated cursor
-        get: (extraPipes, extraSpaces) -> arr2text @arr, @cursor
+        get: (extraPipes, extraSpaces, beautify) ->
+            beautify ?= config.autoBeautify
+            if beautify is true then @beautify()
+            return arr2text @arr, @cursor, extraPipes, extraSpaces
 
         # Get the size of the table {cols, rows}
         getSize: () -> { cols: @arr[0].length, rows: @arr.length }

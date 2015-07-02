@@ -8,7 +8,7 @@ function show (table, msg) {
     if (msg) {
         console.log(msg + "\n==============================\n");
     }
-    var got = table.get();
+    var got = table.get(true, true, false);
     console.log( "Table: \n\n" + got.table);
     if (got.cursor !== null) {
         console.log("\nCursor line: " + got.cursor.line + "\nCursor ch: " + got.cursor.ch);

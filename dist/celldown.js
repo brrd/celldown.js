@@ -15,7 +15,8 @@
       rows: 3,
       cols: 2,
       extraPipes: true,
-      extraSpaces: true
+      extraSpaces: true,
+      autoBeautify: true
     };
     countPipes = function(str) {
       var match;
@@ -450,8 +451,14 @@
         return this;
       };
 
-      Table.prototype.get = function(extraPipes, extraSpaces) {
-        return arr2text(this.arr, this.cursor);
+      Table.prototype.get = function(extraPipes, extraSpaces, beautify) {
+        if (beautify == null) {
+          beautify = config.autoBeautify;
+        }
+        if (beautify === true) {
+          this.beautify();
+        }
+        return arr2text(this.arr, this.cursor, extraPipes, extraSpaces);
       };
 
       Table.prototype.getSize = function() {
