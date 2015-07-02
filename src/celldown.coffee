@@ -134,8 +134,9 @@ celldown = do () ->
         addRows: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
             size = @getSize()
-            index = size.rows if (not index?) or index > size.rows
-            index =  2 if index <= 1
+            index ?= @cursor?.row ?= 0
+            if index > size.rows then index = size.rows
+            if index <= 1 then index =  2
             row = ("   " for [1..size.cols])
             @arr.splice index, 0, row
             @cursor?.moveRow index
@@ -145,8 +146,9 @@ celldown = do () ->
         # Add 'number' cols at 'index' position
         addCols: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
+            index ?= @cursor?.col ?= 0
             @eachRow (arr, row, rowIndex) ->
-                indexInRow = if not index? or index > row.length then row.length else index
+                indexInRow = if index > row.length then row.length else index
                 cellContent = if rowIndex is 1 then "---" else "   "
                 row.splice indexInRow, 0, cellContent
             @cursor?.moveCol index
@@ -157,7 +159,8 @@ celldown = do () ->
         removeRows: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
             size = @getSize()
-            if index <= 1 or index > size.rows-1 then return this
+            index ?= @cursor?.row ?= null
+            if not index? or index <= 1 or index > size.rows-1 then return this
             if number > size.rows - index then number = size.rows - index
             @arr.splice index, number
             if @cursor?
@@ -169,7 +172,8 @@ celldown = do () ->
         removeCols: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this
             size = @getSize()
-            if index < 0 or index > size.cols - 1 then return this
+            index ?= @cursor?.col ?= null
+            if not index? or index < 0 or index > size.cols - 1 then return this
             if number > size.cols - index then number = size.cols - index
             row.splice index, number for row in @arr
             if @cursor?
@@ -179,7 +183,8 @@ celldown = do () ->
 
         # Set 'colIndex'th column align according to 'side' parameter
         align: (colIndex, side) ->
-            if colIndex < 0 or colIndex > @arr.length-1 then return this
+            colIndex ?= @cursor?.col ?= null
+            if not colIndex? or colIndex < 0 or colIndex > @arr.length-1 then return this
             cell = @arr[1][colIndex]
             content = ""
             content += "-" for [1..cell.length-2]
@@ -265,6 +270,7 @@ celldown = do () ->
 
         # Move cursor in the 'move' direction in col when table is modified
         # 'index' is the modified position, so the cursor is moved only if it is located after the modifed col
+        # Use index=0 for moving cursor without testing its relative position
         moveCol: (index, move) ->
             index ?= 0
             move ?= 1
@@ -278,6 +284,7 @@ celldown = do () ->
 
         # Move cursor in the 'move' direction in row when table is modified
         # 'index' is the modified position, so the cursor is moved only if it is located after the modifed row
+        # Use index=0 for moving cursor without testing its relative position
         moveRow: (index, move) ->
             index ?= 0
             move ?= 1

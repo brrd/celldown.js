@@ -1,5 +1,5 @@
 /*
-    celldown.js demo 
+    celldown.js demo
     ================
 */
 
@@ -19,7 +19,7 @@ function show (table, msg) {
 var celldown = require("../dist/celldown.js"),
     str = "|I'm a table   |generated   |with celldown.js|\n" +
     "|--|--|------------------------------------------------------------ |\n" +
-    "|Hello World|  Foo      | Bar |\n" +
+    "|Hello World|  Cur      | Bar |\n" +
     "|Foo|Bar|This is the longest cell!|";
 
 // 1. Create a new empty table
@@ -41,11 +41,15 @@ show(table2, "4. Adding a row and a col");
 // 5. Cursor tracking
 var cursor = {
         line: 2,
-        ch: 21
+        ch: 18
     };
 var table3 = celldown.fromText(str, cursor).addRows(2, 3).addCols(0, 1).beautify();
 show(table3, "5. Cursor tracking. We start a new table with cursor = {line: 2, ch: 21} and we play with rows and columns.");
 
 // 6. Cursor tracking while removing cols and rows
-table3.removeRows(2,3).removeCols(1,2);
+table3.removeCols(1).removeRows(2, 3);
 show(table3, "6. Cursor tracking while removing cols and rows");
+
+// 7. Use cursor position when index is not specified
+table3.removeRows().align(null, "center").beautify();
+show(table3, "7. Use cursor position when index is not specified");

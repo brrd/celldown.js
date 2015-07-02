@@ -1,6 +1,6 @@
 {
   "name": "celldown.js",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A small javascript library for manipulating markdown tables",
   "homepage": "https://github.com/brrd/celldown.js",
   "main": "dist/celldown.js",

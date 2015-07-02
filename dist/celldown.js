@@ -206,30 +206,33 @@
       };
 
       Table.prototype.addRows = function(index, number) {
-        var ref, row, size;
+        var ref, ref1, row, size;
         if (number == null) {
           number = 1;
         } else if (number <= 0) {
           return this;
         }
         size = this.getSize();
-        if ((index == null) || index > size.rows) {
+        if (index == null) {
+          index = (ref = this.cursor) != null ? ref.row != null ? ref.row : ref.row = 0 : void 0;
+        }
+        if (index > size.rows) {
           index = size.rows;
         }
         if (index <= 1) {
           index = 2;
         }
         row = (function() {
-          var j, ref, results;
+          var j, ref1, results;
           results = [];
-          for (j = 1, ref = size.cols; 1 <= ref ? j <= ref : j >= ref; 1 <= ref ? j++ : j--) {
+          for (j = 1, ref1 = size.cols; 1 <= ref1 ? j <= ref1 : j >= ref1; 1 <= ref1 ? j++ : j--) {
             results.push("   ");
           }
           return results;
         })();
         this.arr.splice(index, 0, row);
-        if ((ref = this.cursor) != null) {
-          ref.moveRow(index);
+        if ((ref1 = this.cursor) != null) {
+          ref1.moveRow(index);
         }
         if (number > 1) {
           this.addRows(index, number - 1);
@@ -238,20 +241,23 @@
       };
 
       Table.prototype.addCols = function(index, number) {
-        var ref;
+        var ref, ref1;
         if (number == null) {
           number = 1;
         } else if (number <= 0) {
           return this;
         }
+        if (index == null) {
+          index = (ref = this.cursor) != null ? ref.col != null ? ref.col : ref.col = 0 : void 0;
+        }
         this.eachRow(function(arr, row, rowIndex) {
           var cellContent, indexInRow;
-          indexInRow = (index == null) || index > row.length ? row.length : index;
+          indexInRow = index > row.length ? row.length : index;
           cellContent = rowIndex === 1 ? "---" : "   ";
           return row.splice(indexInRow, 0, cellContent);
         });
-        if ((ref = this.cursor) != null) {
-          ref.moveCol(index);
+        if ((ref1 = this.cursor) != null) {
+          ref1.moveCol(index);
         }
         if (number > 1) {
           this.addCols(index, number - 1);
@@ -260,14 +266,17 @@
       };
 
       Table.prototype.removeRows = function(index, number) {
-        var ref, size;
+        var ref, ref1, size;
         if (number == null) {
           number = 1;
         } else if (number <= 0) {
           return this;
         }
         size = this.getSize();
-        if (index <= 1 || index > size.rows - 1) {
+        if (index == null) {
+          index = (ref = this.cursor) != null ? ref.row != null ? ref.row : ref.row = null : void 0;
+        }
+        if ((index == null) || index <= 1 || index > size.rows - 1) {
           return this;
         }
         if (number > size.rows - index) {
@@ -275,7 +284,7 @@
         }
         this.arr.splice(index, number);
         if (this.cursor != null) {
-          if ((index <= (ref = this.cursor.row) && ref <= index + number)) {
+          if ((index <= (ref1 = this.cursor.row) && ref1 <= index + number - 1)) {
             this.cursor.ch = 0;
           }
           this.cursor.moveRow(index, -number);
@@ -284,26 +293,29 @@
       };
 
       Table.prototype.removeCols = function(index, number) {
-        var j, len, ref, ref1, row, size;
+        var j, len, ref, ref1, ref2, row, size;
         if (number == null) {
           number = 1;
         } else if (number <= 0) {
           return this;
         }
         size = this.getSize();
-        if (index < 0 || index > size.cols - 1) {
+        if (index == null) {
+          index = (ref = this.cursor) != null ? ref.col != null ? ref.col : ref.col = null : void 0;
+        }
+        if ((index == null) || index < 0 || index > size.cols - 1) {
           return this;
         }
         if (number > size.cols - index) {
           number = size.cols - index;
         }
-        ref = this.arr;
-        for (j = 0, len = ref.length; j < len; j++) {
-          row = ref[j];
+        ref1 = this.arr;
+        for (j = 0, len = ref1.length; j < len; j++) {
+          row = ref1[j];
           row.splice(index, number);
         }
         if (this.cursor != null) {
-          if ((index <= (ref1 = this.cursor.col) && ref1 <= index + number)) {
+          if ((index <= (ref2 = this.cursor.col) && ref2 <= index + number - 1)) {
             this.cursor.ch = 0;
           }
           this.cursor.moveCol(index, -number);
@@ -312,13 +324,16 @@
       };
 
       Table.prototype.align = function(colIndex, side) {
-        var cell, content, j, ref;
-        if (colIndex < 0 || colIndex > this.arr.length - 1) {
+        var cell, content, j, ref, ref1;
+        if (colIndex == null) {
+          colIndex = (ref = this.cursor) != null ? ref.col != null ? ref.col : ref.col = null : void 0;
+        }
+        if ((colIndex == null) || colIndex < 0 || colIndex > this.arr.length - 1) {
           return this;
         }
         cell = this.arr[1][colIndex];
         content = "";
-        for (j = 1, ref = cell.length - 2; 1 <= ref ? j <= ref : j >= ref; 1 <= ref ? j++ : j--) {
+        for (j = 1, ref1 = cell.length - 2; 1 <= ref1 ? j <= ref1 : j >= ref1; 1 <= ref1 ? j++ : j--) {
           content += "-";
         }
         switch (side) {
@@ -462,6 +477,9 @@
 
       Cursor.prototype.moveCol = function(index, move) {
         var lastColIndex;
+        if (index == null) {
+          index = 0;
+        }
         if (move == null) {
           move = 1;
         }
@@ -469,9 +487,9 @@
           lastColIndex = this.table.arr[this.row].length - 1;
           this.col = (function() {
             switch (false) {
-              case !(index + move > lastColIndex):
+              case !(this.col + move > lastColIndex):
                 return lastColIndex;
-              case !(index + move < 0):
+              case !(this.col + move < 0):
                 return 0;
               default:
                 return this.col + move;
@@ -483,6 +501,9 @@
 
       Cursor.prototype.moveRow = function(index, move) {
         var lastRowIndex;
+        if (index == null) {
+          index = 0;
+        }
         if (move == null) {
           move = 1;
         }
@@ -490,9 +511,9 @@
           lastRowIndex = this.table.arr.length - 1;
           this.row = (function() {
             switch (false) {
-              case !(index + move > lastRowIndex):
+              case !(this.row + move > lastRowIndex):
                 return lastRowIndex;
-              case !(index + move < 0):
+              case !(this.row + move < 0):
                 return 0;
               default:
                 return this.row + move;
