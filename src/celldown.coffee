@@ -155,6 +155,18 @@ celldown = do () ->
             if number > 1 then @addCols index, number-1
             return this
 
+        # [Alias] Add 'number' rows before cursor
+        addRowsBeforeCursor: (number) -> @addRows null, number
+
+        # [Alias] Add 'number' rows after cursor
+        addRowsAfterCursor: (number) -> if @cursor? then @addRows(@cursor.row + 1, number) else this
+
+        # [Alias] Add 'number' cols before cursor
+        addColsBeforeCursor: (number) -> @addCols null, number
+
+        # [Alias] Add 'number' cols after cursor
+        addColsAfterCursor: (number) -> if @cursor? then @addCols(@cursor.col + 1, number) else this
+
         # Remove 'number' rows at 'index' position
         removeRows: (index, number) ->
             if not number? then number = 1 else if number <= 0 then return this

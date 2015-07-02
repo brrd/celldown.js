@@ -265,6 +265,30 @@
         return this;
       };
 
+      Table.prototype.addRowsBeforeCursor = function(number) {
+        return this.addRows(null, number);
+      };
+
+      Table.prototype.addRowsAfterCursor = function(number) {
+        if (this.cursor != null) {
+          return this.addRows(this.cursor.row + 1, number);
+        } else {
+          return this;
+        }
+      };
+
+      Table.prototype.addColsBeforeCursor = function(number) {
+        return this.addCols(null, number);
+      };
+
+      Table.prototype.addColsAfterCursor = function(number) {
+        if (this.cursor != null) {
+          return this.addCols(this.cursor.col + 1, number);
+        } else {
+          return this;
+        }
+      };
+
       Table.prototype.removeRows = function(index, number) {
         var ref, ref1, size;
         if (number == null) {

@@ -53,3 +53,8 @@ show(table3, "6. Cursor tracking while removing cols and rows");
 // 7. Use cursor position when index is not specified
 table3.removeRows().align(null, "center").beautify();
 show(table3, "7. Use cursor position when index is not specified");
+
+// 8. Alias methods
+var table4 = celldown.fromText(str, cursor);
+table4.addRowsAfterCursor().addColsAfterCursor(3).addRowsBeforeCursor(2).beautify();
+show(table4, "8. Alias methods");
