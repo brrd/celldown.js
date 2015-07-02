@@ -161,7 +161,7 @@ celldown = do () ->
             if number > size.rows - index then number = size.rows - index
             @arr.splice index, number
             if @cursor?
-                if index <= @cursor.row <= index + number then @cursor.ch = 0
+                if index <= @cursor.row <= index + number - 1 then @cursor.ch = 0
                 @cursor.moveRow index, -number
             return this
 
@@ -173,7 +173,7 @@ celldown = do () ->
             if number > size.cols - index then number = size.cols - index
             row.splice index, number for row in @arr
             if @cursor?
-                if index <= @cursor.col <= index + number then @cursor.ch = 0
+                if index <= @cursor.col <= index + number - 1 then @cursor.ch = 0
                 @cursor.moveCol index, -number
             return this
 
@@ -266,24 +266,26 @@ celldown = do () ->
         # Move cursor in the 'move' direction in col when table is modified
         # 'index' is the modified position, so the cursor is moved only if it is located after the modifed col
         moveCol: (index, move) ->
+            index ?= 0
             move ?= 1
             if index <= @col
                 lastColIndex = @table.arr[@row].length - 1
                 @col = switch
-                    when index + move > lastColIndex then lastColIndex
-                    when index + move < 0 then 0
+                    when @col + move > lastColIndex then lastColIndex
+                    when @col + move < 0 then 0
                     else @col + move
             return this
 
         # Move cursor in the 'move' direction in row when table is modified
         # 'index' is the modified position, so the cursor is moved only if it is located after the modifed row
         moveRow: (index, move) ->
+            index ?= 0
             move ?= 1
             if index <= @row
                 lastRowIndex = @table.arr.length - 1
                 @row = switch
-                    when index + move > lastRowIndex then lastRowIndex
-                    when index + move < 0 then 0
+                    when @row + move > lastRowIndex then lastRowIndex
+                    when @row + move < 0 then 0
                     else @row + move
             return this
 
