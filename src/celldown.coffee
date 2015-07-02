@@ -6,8 +6,7 @@
 celldown = do () ->
 
     # Celldown default configuration
-    config =
-        header: true
+    defaultConfig =
         rows: 3
         cols: 2
         extraPipes: true
@@ -87,8 +86,8 @@ celldown = do () ->
     # extraPipes : add optional pipes before and after row
     # extraSpaces : add extra spaces into cells
     arr2text = (arr, cursor, extraPipes, extraSpaces) ->
-        extraPipes ?= config.extraPipes
-        extraSpaces ?= config.extraSpaces
+        extraPipes ?= _celldown.config.extraPipes
+        extraSpaces ?= _celldown.config.extraSpaces
         cursorText = cursor?.get extraPipes, extraSpaces
         cursorText ?= null
         cellSeparator = if extraSpaces then " | " else "|"
@@ -250,9 +249,9 @@ celldown = do () ->
             return this
 
         # Get the markdown table as text and the updated cursor
-        get: (extraPipes, extraSpaces, beautify) ->
-            beautify ?= config.autoBeautify
-            if beautify is true then @beautify()
+        get: () ->
+            {extraPipes, extraSpaces, autoBeautify} = _celldown.config
+            if autoBeautify is true then @beautify()
             return arr2text @arr, @cursor, extraPipes, extraSpaces
 
         # Get the size of the table {cols, rows}
@@ -332,11 +331,19 @@ celldown = do () ->
     # ========
 
     _celldown =
+        # Default config
+        config: defaultConfig
+
+        # Set config
+        setConfig: (obj) ->
+            @config[key] = obj?[key] ?= value for own key, value of @config
+
         # Create a new empty Table
         new: (cols, rows, cursor) ->
-            cols ?= config.cols
-            rows ?= config.rows
+            cols ?= @config.cols
+            rows ?= @config.rows
             return new Table {cols, rows, cursor}
+
         # Create a new Table from text
         fromText: (text, cursor) -> new Table {text, cursor}
 

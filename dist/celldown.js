@@ -6,12 +6,12 @@
  */
 
 (function() {
-  var celldown;
+  var celldown,
+    hasProp = {}.hasOwnProperty;
 
   celldown = (function() {
-    var Cursor, Table, _celldown, arr2text, config, countPipes, getEmptyArr, isValidTable, text2arr, translateCoord;
-    config = {
-      header: true,
+    var Cursor, Table, _celldown, arr2text, countPipes, defaultConfig, getEmptyArr, isValidTable, text2arr, translateCoord;
+    defaultConfig = {
       rows: 3,
       cols: 2,
       extraPipes: true,
@@ -107,10 +107,10 @@
     arr2text = function(arr, cursor, extraPipes, extraSpaces) {
       var cellSeparator, cursorText, lineStart, lineStop, row, text;
       if (extraPipes == null) {
-        extraPipes = config.extraPipes;
+        extraPipes = _celldown.config.extraPipes;
       }
       if (extraSpaces == null) {
-        extraSpaces = config.extraSpaces;
+        extraSpaces = _celldown.config.extraSpaces;
       }
       cursorText = cursor != null ? cursor.get(extraPipes, extraSpaces) : void 0;
       if (cursorText == null) {
@@ -451,11 +451,10 @@
         return this;
       };
 
-      Table.prototype.get = function(extraPipes, extraSpaces, beautify) {
-        if (beautify == null) {
-          beautify = config.autoBeautify;
-        }
-        if (beautify === true) {
+      Table.prototype.get = function() {
+        var autoBeautify, extraPipes, extraSpaces, ref;
+        ref = _celldown.config, extraPipes = ref.extraPipes, extraSpaces = ref.extraSpaces, autoBeautify = ref.autoBeautify;
+        if (autoBeautify === true) {
           this.beautify();
         }
         return arr2text(this.arr, this.cursor, extraPipes, extraSpaces);
@@ -579,12 +578,24 @@
 
     })();
     _celldown = {
+      config: defaultConfig,
+      setConfig: function(obj) {
+        var key, ref, results, value;
+        ref = this.config;
+        results = [];
+        for (key in ref) {
+          if (!hasProp.call(ref, key)) continue;
+          value = ref[key];
+          results.push(this.config[key] = obj != null ? obj[key] != null ? obj[key] : obj[key] = value : void 0);
+        }
+        return results;
+      },
       "new": function(cols, rows, cursor) {
         if (cols == null) {
-          cols = config.cols;
+          cols = this.config.cols;
         }
         if (rows == null) {
-          rows = config.rows;
+          rows = this.config.rows;
         }
         return new Table({
           cols: cols,
