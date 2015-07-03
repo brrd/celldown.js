@@ -11,7 +11,6 @@ It provides several very basic features for handling markdown (GFM) tables in a 
 * Setting columns alignment
 * Improving format (beautify)
 * Tracking the cursor position while doing those operations
-* ...
 
 ## Install
 
@@ -89,23 +88,40 @@ var t = table.get();
 console.log("Modified table is:\n" + t.table + "\n...and cursor position is line: " + t.cursor.line + ", ch: " +  t.cursor.ch);
 ```
 
-**Options**
+### Configuration
 
-It is possible to use the options `.get(extraPipes, extraSpaces)` where both `extraPipes` and `extraSpaces` are booleans:
+Configuration is stored in `celldown.config` and can be modified with `celldown.setConfig()`.
 
-* When set to `true`, `extraPipes` wraps each line into optional pipes.
-* When set to `true`, `extraSpaces` adds extra spaces around each cell's content.
+The following are available:
 
-Both defaults are `true`.
+* `rows` is the number of rows added to an empty table when not specified  (default is `3`)
+* `cols` is the number of columns added to an empty table when not specified  (default is `2`)
+* If set to `true`, `extraPipes` wraps each line of the table into optional pipes.
+* If set to `true`, `extraSpaces` adds extra spaces around each cell's of the table (default is `true`)
+* If `autoBeautify` is set to `true`, table is beautified on `table.get()` (default is `true`)
+
+Use `celldown.setConfig(newConfigObj)` to change defaults:
+
+```javascript
+celldown.setConfig({
+    rows: 2,
+    autoBeautify: false
+});
+```
 
 ### Actions on table
 
 #### Add rows and columns
 
-* `.addRows(index)`
 * `.addRows(index, numberOfAdditions)`
-* `.addCols(index)`
 * `.addCols(index, numberOfAdditions)`
+* `addRowsBeforeCursor(numberOfAdditions)`
+* `addRowsAfterCursor(numberOfAdditions)`
+* `addColsBeforeCursor(numberOfAdditions)`
+* `addColsAfterCursor(numberOfAdditions)`
+
+When not defined `index` is set to cursor position if cursor exists (otherwise it is set to 0).  
+When not defined `numberOfAdditions` is set to 1.
 
 ```javascript
 // Adding a row before the 4th row
@@ -117,10 +133,11 @@ table.addCols(0, 2);
 
 #### Remove rows and columns
 
-* `.removeRows(index)`
 * `.removeRows(index, numberOfDeletions)`
-* `.removeCols(index)`
 * `.removeCols(index, numberOfDeletions)`
+
+When not defined `index` is set to cursor position if cursor exists (otherwise function is not executed).  
+When not defined `numberOfAdditions` is set to 1.
 
 ```javascript
 // Removing the third col
@@ -133,6 +150,9 @@ table.removeRows(2, 4);
 #### Align columns
 
 * `.align(colIndex, side)`
+
+When not defined `colIndex` is set to cursor position if cursor exists (otherwise function is not executed).  
+When `side` is not defined, column alignment is cleared.
 
 ```javascript
 // Align columns 0, 1 and 2
@@ -188,7 +208,7 @@ Contributions are welcome.
 
 ### Building
 
-1. Clone repo
+1. Fork repo
 2. Init project: `$ npm init`
 3. Modify source in `src/celldown.coffee`
 4. Build project: `$ grunt`
@@ -201,7 +221,7 @@ Some ideas:
 * Support `null` as a coordinate for representing the last item of a collection (line, row, cell...)
 * Add methods to perform tranlation between `{line, ch}` and `{col, row, ch}` coordinates. Actually it already exists in `txt2arr()` and `cursor.get()` methods for handling cursor coord conversion, so we could possibly get inspired.
 * Add a `.addContent(arr, coord)` method for filling with `content` a set of cells defined in `coord`.
-* ...
+* ...?
 
 ## Licence
 
