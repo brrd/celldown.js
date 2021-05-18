@@ -423,7 +423,7 @@
         resizeCells = (function(_this) {
           return function(colMaxSize) {
             return _this.eachCell(function(arr, cell, rowIndex, colIndex) {
-              var beforeCursor, firstChar, isHyphens, lastChar, match, missingChars, moveLeft, size;
+              var beforeCursor, firstChar, isHyphens, lastChar, match, missingChars, moveLeft, size, spaces;
               if ((_this.cursor != null) && _this.cursor.row === rowIndex && _this.cursor.col === colIndex) {
                 beforeCursor = _this.cursor.ch != null ? cell.substr(0, _this.cursor.ch) : cell;
                 match = beforeCursor.match(/^\s?/);
@@ -448,17 +448,42 @@
                 })()).join("") + lastChar;
               } else {
                 missingChars = size - cell.length;
-                if (missingChars > 0) {
-                  cell += ((function() {
-                    var j, ref, results;
-                    results = [];
-                    for (j = 1, ref = missingChars; 1 <= ref ? j <= ref : j >= ref; 1 <= ref ? j++ : j--) {
-                      results.push(" ");
-                    }
-                    return results;
-                  })()).join("");
-                }
+                spaces = missingChars > 0 ? ((function() {
+                  var j, ref, results;
+                  results = [];
+                  for (j = 1, ref = missingChars; 1 <= ref ? j <= ref : j >= ref; 1 <= ref ? j++ : j--) {
+                    results.push(" ");
+                  }
+                  return results;
+                })()).join("") : "";
+                console.log(_this.arr[rowIndex][colIndex]);
+                cell = (function() {
+                  switch (this.getAlignment(colIndex)) {
+                    case "left":
+                    case void 0:
+                      return cell + spaces;
+                    case "right":
+                      return spaces + cell;
+                    case "center":
+                      return (missingChars > 1 ? ((function() {
+                        var j, ref, results;
+                        results = [];
+                        for (j = 1, ref = Math.floor(missingChars / 2); 1 <= ref ? j <= ref : j >= ref; 1 <= ref ? j++ : j--) {
+                          results.push(" ");
+                        }
+                        return results;
+                      })()).join("") : "") + cell + (missingChars > 0 ? ((function() {
+                        var j, ref, results;
+                        results = [];
+                        for (j = 1, ref = Math.ceil(missingChars / 2); 1 <= ref ? j <= ref : j >= ref; 1 <= ref ? j++ : j--) {
+                          results.push(" ");
+                        }
+                        return results;
+                      })()).join("") : "");
+                  }
+                }).call(_this);
               }
+              _this.getAlignment(colIndex);
               return _this.arr[rowIndex][colIndex] = cell;
             });
           };

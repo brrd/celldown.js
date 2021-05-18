@@ -254,7 +254,14 @@ celldown = do () ->
                         cell = firstChar + ("-" for [1..size-2]).join("") + lastChar
                     else
                         missingChars = size - cell.length
-                        if missingChars > 0 then cell += (" " for [1..missingChars]).join("")
+                        # Used only if alignment isn't center
+                        spaces = if missingChars > 0 then (" " for [1..missingChars]).join("") else ""
+                        console.log @arr[rowIndex][colIndex]
+                        cell = switch (@getAlignment colIndex)
+                            when "left", undefined then cell + spaces
+                            when "right" then spaces + cell
+                            when "center" then (if missingChars > 1 then (" " for [1..Math.floor (missingChars / 2)]).join("") else "") + cell + (if missingChars > 0 then (" " for [1..Math.ceil (missingChars / 2)]).join("") else "")
+                    @getAlignment colIndex
                     @arr[rowIndex][colIndex] = cell
 
             resizeCells getColMaxSize()
