@@ -378,6 +378,22 @@
         return this;
       };
 
+      Table.prototype.getAlignment = function(colIndex) {
+        var firstChar, lastChar;
+        lastChar = this.arr[1][colIndex].slice(-1);
+        firstChar = this.arr[1][colIndex].charAt(0);
+        if (firstChar === ":" && lastChar === ":") {
+          return "center";
+        }
+        if (firstChar === ":") {
+          return "left";
+        }
+        if (lastChar === ":") {
+          return "right";
+        }
+        return void 0;
+      };
+
       Table.prototype.beautify = function() {
         var getColMaxSize, resizeCells;
         getColMaxSize = (function(_this) {

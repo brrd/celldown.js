@@ -208,6 +208,18 @@ celldown = do () ->
             @arr[1][colIndex] = content
             return this
 
+        # Get 'colIndex'th column alignment. Undefined means, that there isn't specified any align (no colons at the second line).
+        getAlignment: (colIndex) ->
+            lastChar = @arr[1][colIndex].slice -1
+            firstChar = @arr[1][colIndex].charAt 0
+            if firstChar == ":" && lastChar == ":"
+                return "center"
+            if firstChar == ":"
+                return "left"
+            if lastChar == ":"
+                return "right"
+            return undefined
+            
         # Beautify table. It remains normalized (ie no extra pipes, no extra spaces in cells)
         beautify: () ->
             # For each col, store the highest text length
