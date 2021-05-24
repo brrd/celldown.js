@@ -210,6 +210,10 @@ celldown = do () ->
 
         # Get 'colIndex'th column alignment. Undefined means, that there isn't specified any align (no colons at the second line).
         getAlignment: (colIndex) ->
+            colIndex ?= @cursor?.col ?= null
+            if not colIndex? or colIndex < 0 or colIndex > @arr[1].length-1
+                console.error "Invalid colIndex"
+                return null
             lastChar = @arr[1][colIndex].slice -1
             firstChar = @arr[1][colIndex].charAt 0
             if firstChar == ":" && lastChar == ":"

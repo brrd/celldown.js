@@ -379,7 +379,14 @@
       };
 
       Table.prototype.getAlignment = function(colIndex) {
-        var firstChar, lastChar;
+        var firstChar, lastChar, ref;
+        if (colIndex == null) {
+          colIndex = (ref = this.cursor) != null ? ref.col != null ? ref.col : ref.col = null : void 0;
+        }
+        if ((colIndex == null) || colIndex < 0 || colIndex > this.arr[1].length - 1) {
+          console.error("Invalid colIndex");
+          return null;
+        }
         lastChar = this.arr[1][colIndex].slice(-1);
         firstChar = this.arr[1][colIndex].charAt(0);
         if (firstChar === ":" && lastChar === ":") {
