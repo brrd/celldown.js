@@ -167,7 +167,9 @@ table.align(0);
 #### Get alignment of columns
 * `.align(colIndex)`
 
-Returns alignment of colIndex-th column, one of `"left"`,`"center"`, `"right"` or `undefined`, when alignment is not defined.
+Returns alignment of the colIndex-th column, one of `"left"`, `"center"`, `"right"` or `undefined`, when alignment is not defined (no colons in the second row).
+
+When not defined `colIndex` is set to cursor position if cursor exists (otherwise function returns `null` and `Invalid colIndex` error is printed out to the console).
 
 #### Beautify table
 
@@ -251,4 +253,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
 
