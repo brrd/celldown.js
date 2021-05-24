@@ -256,7 +256,6 @@ celldown = do () ->
                         missingChars = size - cell.length
                         # Used only if alignment isn't center
                         spaces = if missingChars > 0 then (" " for [1..missingChars]).join("") else ""
-                        console.log @arr[rowIndex][colIndex]
                         cell = switch (@getAlignment colIndex)
                             when "left", undefined then cell + spaces
                             when "right" then spaces + cell

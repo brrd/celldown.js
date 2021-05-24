@@ -456,7 +456,6 @@
                   }
                   return results;
                 })()).join("") : "";
-                console.log(_this.arr[rowIndex][colIndex]);
                 cell = (function() {
                   switch (this.getAlignment(colIndex)) {
                     case "left":
