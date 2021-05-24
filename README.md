@@ -164,6 +164,11 @@ table.align(3, "right");
 table.align(0);
 ```
 
+#### Get alignment of columns
+* `.align(colIndex)`
+
+Returns alignment of colIndex-th column, one of `"left"`,`"center"`, `"right"` or `undefined`, when alignment is not defined.
+
 #### Beautify table
 
 * `.beautify()`
@@ -172,7 +177,7 @@ Beautify the table. It transforms this:
 
 ```
 |I'm a table   |generated   |with celldown.js|
-|--|--|------------------------------------------------------------ |
+|--|--|-----------------------------------------------------------: |
 |Hello World|  Foo      | Bar |
 |Foo|Bar|This is the longest cell!|
 ```
@@ -181,9 +186,9 @@ into this:
 
 ```
 | I'm a table | generated | with celldown.js          |
-| ----------- | --------- | ------------------------- |
-| Hello World | Foo       | Bar                       |
-| Foo         | Bar       | This is the longest cell! |
+| ----------- | :-------: | ------------------------: |
+| Hello World |  FooFoo   |                       Bar |
+| Foo         |    Bar    | This is the longest cell! |
 ```
 
 #### Do things on each row/each cell
@@ -246,3 +251,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
