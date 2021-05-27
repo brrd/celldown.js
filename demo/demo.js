@@ -5,24 +5,24 @@
 
 // Get and show table + cursor (demonstration purpose only)
 function show (table, msg) {
-    if (msg) {
-        console.log(msg + "\n==============================\n");
-    }
-    var got = table.get();
-    console.log( "Table: \n\n" + got.table);
-    if (got.cursor !== null) {
-        console.log("\nCursor line: " + got.cursor.line + "\nCursor ch: " + got.cursor.ch);
-    }
-    console.log("\n\n");
+	if (msg) {
+			console.log(msg + "\n==============================\n");
+	}
+	var got = table.get();
+	console.log( "Table: \n\n" + got.table);
+	if (got.cursor !== null) {
+			console.log("\nCursor line: " + got.cursor.line + "\nCursor ch: " + got.cursor.ch);
+	}
+	console.log("\n\n");
 }
 
 var celldown = require("../dist/celldown.js"),
-    str = "|I'm a table   |generated   |with celldown.js|\n" +
-    "|--|--|------------------------------------------------------------ |\n" +
-    "|Hello World|  Cur      | Bar |\n" +
-    "|Foo|Bar|This is the longest cell!|";
+	str = "|I'm a table   |generated   |with celldown.js|\n" +
+	"|:--:|--|------------------------------------------------------------:|\n" +
+	"|Hello World|  Cur      | Bar |\n" +
+	"|Foo|Bar|This is the longest cell!|";
 celldown.setConfig({
-    autoBeautify: false
+	autoBeautify: false
 });
 
 // 1. Create a new empty table
@@ -35,7 +35,7 @@ show(table2, "2. Table from string + beautify");
 
 // Auto beautify when get() from here
 celldown.setConfig({
-    autoBeautify: true
+	autoBeautify: true
 });
 
 // 3. Playing with cols align
@@ -48,9 +48,9 @@ show(table2, "4. Adding a row and a col");
 
 // 5. Cursor tracking
 var cursor = {
-        line: 2,
-        ch: 18
-    };
+			line: 2,
+			ch: 18
+	};
 var table3 = celldown.fromText(str, cursor).addRows(2, 3).addCols(0, 1);
 show(table3, "5. Cursor tracking. We start a new table with cursor = {line: 2, ch: 21} and we play with rows and columns.");
 
