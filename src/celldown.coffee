@@ -208,6 +208,22 @@ celldown = do () ->
             @arr[1][colIndex] = content
             return this
 
+        # Get 'colIndex'th column alignment. Undefined means, that there isn't specified any align (no colons at the second line).
+        getAlignment: (colIndex) ->
+            colIndex ?= @cursor?.col ?= null
+            if not colIndex? or colIndex < 0 or colIndex > @arr[1].length-1
+                console.error "Invalid colIndex"
+                return null
+            lastChar = @arr[1][colIndex].slice -1
+            firstChar = @arr[1][colIndex].charAt 0
+            if firstChar == ":" && lastChar == ":"
+                return "center"
+            if firstChar == ":"
+                return "left"
+            if lastChar == ":"
+                return "right"
+            return undefined
+            
         # Beautify table. It remains normalized (ie no extra pipes, no extra spaces in cells)
         beautify: () ->
             # For each col, store the highest text length
@@ -242,7 +258,13 @@ celldown = do () ->
                         cell = firstChar + ("-" for [1..size-2]).join("") + lastChar
                     else
                         missingChars = size - cell.length
-                        if missingChars > 0 then cell += (" " for [1..missingChars]).join("")
+                        # Used only if alignment isn't center
+                        spaces = if missingChars > 0 then (" " for [1..missingChars]).join("") else ""
+                        cell = switch (@getAlignment colIndex)
+                            when "left", undefined then cell + spaces
+                            when "right" then spaces + cell
+                            when "center" then (if missingChars > 1 then (" " for [1..Math.floor (missingChars / 2)]).join("") else "") + cell + (if missingChars > 0 then (" " for [1..Math.ceil (missingChars / 2)]).join("") else "")
+                    @getAlignment colIndex
                     @arr[rowIndex][colIndex] = cell
 
             resizeCells getColMaxSize()
