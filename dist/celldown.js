@@ -489,7 +489,6 @@
                   }
                 }).call(_this);
               }
-              _this.getAlignment(colIndex);
               return _this.arr[rowIndex][colIndex] = cell;
             });
           };
