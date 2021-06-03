@@ -264,7 +264,6 @@ celldown = do () ->
                             when "left", undefined then cell + spaces
                             when "right" then spaces + cell
                             when "center" then (if missingChars > 1 then (" " for [1..Math.floor (missingChars / 2)]).join("") else "") + cell + (if missingChars > 0 then (" " for [1..Math.ceil (missingChars / 2)]).join("") else "")
-                    @getAlignment colIndex
                     @arr[rowIndex][colIndex] = cell
 
             resizeCells getColMaxSize()
